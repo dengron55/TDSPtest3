@@ -208,7 +208,7 @@ export default function App() {
                   
                   <div className="bg-slate-950 aspect-[3/4] relative flex items-center justify-center">
                     <img 
-                      src="TDSPeBookCover3Dmockup1.jpg" 
+                      src="TDSPeBookCover3Dmockup2.jpg" 
                       alt="The Digital Stress Protocol Cover Mockup" 
                       className="w-full h-full object-cover"
                       onError={(e) => {
