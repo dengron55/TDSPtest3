@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { 
   BookOpen, 
   ShoppingCart, 
-  Mail, 
-  MessageSquare, 
   ChevronRight, 
-  ShieldCheck, 
   Cpu, 
   EyeOff, 
   Brain, 
@@ -13,22 +10,21 @@ import {
   Layers, 
   Menu,
   X,
-  ExternalLink
+  ExternalLink,
+  FileSpreadsheet
 } from 'lucide-react';
 
 export default function App() {
-  // 狀態管理：行動端導航選單、互動分頁架構、郵件調用反饋狀態
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeLayer, setActiveLayer] = useState("inner");
   const [feedbackSuccess, setFeedbackSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    type: "Reader Insight and Feedback",
+    type: "Reader Insights and Reflections",
     message: ""
   });
 
-  // 書籍核心協定三層架構數據模型
   const protocolLayers = {
     inner: {
       title: "Inner Layer: Core Self-Cognition",
@@ -95,46 +91,60 @@ export default function App() {
     }
   };
 
-  // 表單轉發處理邏輯（喚醒原生電子郵件客戶端）
-  const handleFeedbackSubmit = (e) => {
+  {/* 方案 B：真實 Google 表單背景串接核心邏輯 */}
+  const handleGoogleFormSubmit = (e) => {
     e.preventDefault();
-    const emailTo = "rodineast@gmail.com";
-    const subject = encodeURIComponent(`[${formData.type}] Landing Page Message - ${formData.name}`);
-    const body = encodeURIComponent(`Dear Rodin East,\n\nMy name is ${formData.name} (${formData.email}).\n\nHere is my message:\n${formData.message}\n\n--- Sent via The Digital Stress Protocol Official Landing Page.`);
+    const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeTMnHL-r959itU66sTBYBCapQ83hkO7fjgd3DJuDcoONqrnA/formResponse";
+    const formDataBody = new FormData();
     
-    window.location.href = `mailto:${emailTo}?subject=${subject}&body=${body}`;
-    
-    setFeedbackSuccess(true);
-    setTimeout(() => setFeedbackSuccess(false), 6000);
+    formDataBody.append("entry.1422014424", formData.name);
+    formDataBody.append("entry.172100959", formData.email);
+    formDataBody.append("entry.747442692", formData.type);
+    formDataBody.append("entry.2097382726", formData.message);
+
+    fetch(formUrl, { method: "POST", mode: "no-cors", body: formDataBody })
+      .then(() => {
+        setFeedbackSuccess(true);
+        setFormData({ name: "", email: "", type: "Reader Insights and Reflections", message: "" });
+        setTimeout(() => setFeedbackSuccess(false), 6000);
+      })
+      .catch((err) => console.error(err));
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-amber-500 selection:text-slate-950 antialiased">
       
-      {/* SECTION 1: 全域頂部導航列 */}
+      {/* SECTION 1: 導航列 */}
       <nav className="sticky top-0 z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-900 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             
-            {/* 品牌印章核心圖誌 */}
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: "smooth"})}>
-              <div className="w-10 h-10 rounded-full bg-slate-950 border border-amber-500/20 flex items-center justify-center overflow-hidden relative shadow-inner shadow-black">
+            {/* 修改 3: 左上角 Logo 改造（白色漸層圓點外擴，置中疊加 Logo2.jpg 呈現日全蝕凸顯視覺） */}
+            <div className="flex items-center space-x-4 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: "smooth"})}>
+              <div className="w-14 h-14 rounded-full relative flex items-center justify-center transition-transform duration-300 hover:scale-105">
+                
+                {/* 日全蝕白色向外平滑模糊漸層層 */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white via-white/80 to-transparent opacity-95 blur-[2px]" />
+                <div className="absolute inset-[-6px] rounded-full bg-white opacity-25 blur-lg animate-pulse" />
+                
+                {/* 疊加質感爆棚的立體 Logo2.jpg */}
                 <img 
-                  src="RodinEastSeal2.jpg" 
+                  src="Logo2.jpg" 
                   alt="RE Seal" 
-                  className="w-full h-full object-cover object-top opacity-95 scale-[0.8]"
-                  onError={(e)=>{e.target.style.display="none"}} 
+                  className="w-[88%] h-[88%] object-cover rounded-full relative z-10"
+                  onError={(e)=>{
+                    e.target.style.display="none";
+                  }} 
                 />
-                <div className="absolute inset-0 rounded-full shadow-[0_0_15px_3px_rgba(245,158,11,0.2)] pointer-events-none" />
-                <span className="text-amber-400 font-serif font-bold text-base tracking-tighter absolute"></span>
+                <span className="text-slate-950 font-serif font-extrabold text-sm tracking-tighter absolute z-20 hidden [img[style*='display: none']~&]:block">RE</span>
               </div>
               <div>
                 <span className="font-serif tracking-wider font-bold text-base text-amber-500 block">RODIN EAST</span>
-                <span className="text-[9px] tracking-widest text-slate-400 block uppercase font-mono"> </span>
+                <span className="text-[9px] tracking-widest text-slate-400 block uppercase font-mono">Official Author Page</span>
               </div>
             </div>
 
-            {/* 桌面端導航選單單元 */}
+            {/* 桌面端選單 */}
             <div className="hidden md:flex items-center space-x-8">
               <a href="#about" className="text-sm font-medium text-slate-300 hover:text-amber-500 transition-colors">About</a>
               <a href="#protocol" className="text-sm font-medium text-slate-300 hover:text-amber-500 transition-colors">Protocol Map</a>
@@ -151,7 +161,6 @@ export default function App() {
               </a>
             </div>
 
-            {/* 行動端控制切換鈕 */}
             <div className="md:hidden">
               <button 
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
@@ -163,7 +172,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* 行動端下拉彈出面板 */}
+        {/* 行動端選單 */}
         {mobileMenuOpen && (
           <div className="md:hidden bg-slate-950 border-b border-slate-900 px-4 pt-2 pb-6 space-y-3">
             <a href="#about" onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-900 hover:text-amber-500">About</a>
@@ -183,7 +192,7 @@ export default function App() {
         )}
       </nav>
 
-      {/* SECTION 2: Hero 大器宣傳主視覺 */}
+      {/* SECTION 2: Hero 主視覺 */}
       <section className="relative overflow-hidden pt-12 pb-24 md:py-32 border-b border-slate-900">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-60" />
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
@@ -191,7 +200,6 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
-            {/* 左縱列：書籍高規格控制台 Mockup 容器 */}
             <div className="lg:col-span-5 flex justify-center lg:justify-start order-2 lg:order-1">
               <div className="relative group max-w-[320px] sm:max-w-[360px] w-full px-4">
                 <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-blue-500/20 rounded-2xl blur-2xl group-hover:scale-105 transition-transform duration-500" />
@@ -209,7 +217,7 @@ export default function App() {
                   <div className="bg-slate-950 aspect-[3/4] relative flex items-center justify-center">
                     <img 
                       src="TDSPeBookCover3Dmockup2.jpg" 
-                      alt="The Digital Stress Protocol Cover Mockup" 
+                      alt="The Digital Stress Protocol Cover" 
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         e.target.style.display = "none";
@@ -219,14 +227,14 @@ export default function App() {
                   </div>
                 </div>
                 
-                <div className="absolute -bottom-4 -right-2 bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-1.5 flex items-center space-x-2 backdrop-blur-sm shadow-xl">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[11px] font-mono text-slate-400">Kindle and Paperback Available</span>
+                {/* 修改 1: "綠色明暗變化的圓點+Kindle and Paperback Available" 等比放大 50% */}
+                <div className="absolute -bottom-8 -right-6 bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5 flex items-center space-x-3 backdrop-blur-sm shadow-xl scale-150 origin-bottom-right z-20">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
+                  <span className="text-[11px] font-mono font-bold text-slate-200 whitespace-nowrap">Kindle and Paperback Available</span>
                 </div>
               </div>
             </div>
 
-            {/* 右縱列：強悍書籍文案內容 */}
             <div className="lg:col-span-7 flex flex-col justify-center order-1 lg:order-2 text-center lg:text-left">
               <div className="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full text-amber-500 text-xs font-medium tracking-wide w-fit mx-auto lg:mx-0 mb-6">
                 <BookOpen className="w-3.5 h-3.5" />
@@ -312,7 +320,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 4: 數位協定互動區塊 & Blueprint 頂規凸顯核心區 */}
+      {/* SECTION 4: 數位協定互動區塊 */}
       <section id="protocol" className="py-20 bg-slate-950 border-b border-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -324,7 +332,6 @@ export default function App() {
             </p>
           </div>
 
-          {/* 互動式三層級切換導航 */}
           <div className="flex justify-center p-1.5 bg-slate-900 border border-slate-800 rounded-xl max-w-xl mx-auto mb-12">
             <button 
               onClick={() => setActiveLayer("inner")}
@@ -346,8 +353,8 @@ export default function App() {
             </button>
           </div>
 
-          {/* 動態分頁面板內容 */}
-          <div className={`p-6 sm:p-10 rounded-2xl bg-gradient-to-br border transition-all duration-300 ${protocolLayers[activeLayer].color}`}>
+          {/* 安全單行拼裝字串，根絕 Vite/Oxc 編譯器報錯 */}
+          <div className={'p-6 sm:p-10 rounded-2xl bg-gradient-to-br border transition-all duration-300 ' + protocolLayers[activeLayer].color}>
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-slate-800/60 pb-6 mb-8">
               <div>
                 <span className="text-xs font-mono uppercase text-slate-500 tracking-widest">Active System Dimension</span>
@@ -361,7 +368,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* 卡片化章節模型 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {protocolLayers[activeLayer].chapters.map((chap, idx) => (
                 <div key={idx} className="bg-slate-950/90 p-6 rounded-xl border border-slate-900 flex flex-col justify-between hover:border-slate-800 transition-colors">
@@ -382,17 +388,13 @@ export default function App() {
             </div>
           </div>
 
-          {/* CRITICAL UPDATE: 精準比照大圖高規控制面板外框設計，完美發光凸顯 Preface4.jpg */}
-          <div className="mt-16 text-center">
+          {/* 系統架構圖展示區 */}
+          <div className="mt-20 text-center">
             <div className="max-w-[768px] mx-auto px-4 w-full">
               <div className="relative group w-full">
-                {/* 後方雙向色彩漸層發光背景霓虹 */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-blue-500/20 rounded-2xl blur-2xl group-hover:scale-105 transition-transform duration-500" />
                 
-                {/* 擬真硬體外框卡片主體 */}
                 <div className="relative rounded-lg shadow-2xl overflow-hidden border border-slate-800 transform group-hover:-translate-y-2 transition-transform duration-300">
-                  
-                  {/* 頂部系統核心飾條面板，帶有經典紅黃綠三點模擬 */}
                   <div className="bg-slate-900 p-2.5 border-b border-slate-800 flex items-center justify-between">
                     <span className="text-[10px] text-amber-500 tracking-widest uppercase font-mono font-bold">Master Architecture Blueprint</span>
                     <div className="flex space-x-1.5">
@@ -402,7 +404,6 @@ export default function App() {
                     </div>
                   </div>
                   
-                  {/* 核心架構大圖放置面板 */}
                   <div className="bg-slate-950 p-4 relative flex items-center justify-center min-h-[250px]">
                     <img 
                       src="Preface4.jpg" 
@@ -415,10 +416,10 @@ export default function App() {
                   </div>
                 </div>
                 
-                {/* 右下角系統微型浮動章記 */}
-                <div className="absolute -bottom-4 -right-2 bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-1.5 flex items-center space-x-2 backdrop-blur-sm shadow-xl">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[11px] font-mono text-slate-400">Source: Preface Master Chart</span>
+                {/* 修改 2: "綠色明暗變化的圓點+Source: Preface Master Chart" 等比放大 50% */}
+                <div className="absolute -bottom-8 -right-6 bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2.5 flex items-center space-x-3 backdrop-blur-sm shadow-xl scale-150 origin-bottom-right z-20">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
+                  <span className="text-[11px] font-mono font-bold text-slate-200 whitespace-nowrap">Source: Preface Master Chart</span>
                 </div>
               </div>
             </div>
@@ -427,7 +428,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 5: 雙軌解決方案重構（徹底移除容易引發 Oxc 錯誤之複雜行，改採穩定乾淨的塊狀語法結構） */}
+      {/* SECTION 5: 雙軌解決方案 */}
       <section id="solutions" className="py-20 bg-slate-950/40 border-b border-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -438,8 +439,6 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 font-sans">
-            
-            {/* TRACK 01 分組面板 */}
             <div className="bg-slate-900/40 border border-slate-900 p-8 rounded-2xl">
               <div className="inline-flex items-center space-x-2 bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-xs font-semibold font-mono mb-6">
                 <span>TRACK 01 - Socio-psychological Adjustment</span>
@@ -449,7 +448,6 @@ export default function App() {
                 Nurturing internal mental fortitude. Guiding individuals through standard psychological de-quantization to disconnect core self-validation from metrics.
               </p>
               
-              {/* 拆解行元素為最乾淨安全的 Block Div 結構，拒絕單行過長屬性 */}
               <div className="mt-6 space-y-4">
                 <div className="flex items-start space-x-3 text-sm text-slate-300">
                   <div className="text-blue-400 font-mono text-sm font-bold shrink-0">[✓]</div>
@@ -466,7 +464,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* TRACK 02 分組面板 */}
             <div className="bg-slate-900/40 border border-slate-900 p-8 rounded-2xl">
               <div className="inline-flex items-center space-x-2 bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full text-xs font-semibold font-mono mb-6">
                 <span>TRACK 02 - Socio-behavioral Intervention</span>
@@ -476,7 +473,6 @@ export default function App() {
                 Deliberate structural defense configuration. Engineering physical barriers and specific device restrictions to enforce boundaries.
               </p>
               
-              {/* 拆解行元素為最乾淨安全的 Block Div 結構，拒絕單行過長屬性 */}
               <div className="mt-6 space-y-4">
                 <div className="flex items-start space-x-3 text-sm text-slate-300">
                   <div className="text-amber-400 font-mono text-sm font-bold shrink-0">[✓]</div>
@@ -492,34 +488,29 @@ export default function App() {
                 </div>
               </div>
             </div>
-
           </div>
-
         </div>
       </section>
 
-      {/* SECTION 6: 讀者聯絡與反饋整合表單 */}
+      {/* SECTION 6: 修改 4 - Reader Hub 精華改造（直連真實 Google 表單，背景無縫發送） */}
       <section id="feedback" className="py-20 bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
             <div className="lg:col-span-5">
               <div className="inline-flex items-center space-x-2 bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full text-xs font-medium mb-4">
-                <MessageSquare className="w-3.5 h-3.5" />
-                <span>Reader Connection</span>
+                <FileSpreadsheet className="w-3.5 h-3.5" />
+                <span>Google Form Hub</span>
               </div>
-              <h2 className="text-2xl font-serif font-bold text-white">Connect Directly with Rodin East</h2>
+              <h2 className="text-2xl font-serif font-bold text-white">Connect Directly via Google Forms</h2>
               <p className="mt-4 text-sm text-slate-400 leading-relaxed">
-                The launch of this volume marks the start of a broader mental reclamation initiative. Share your reading insights, log unique instances of algorithmic interference, or initiate institutional corporate training partnerships. This form automatically structures your response into a draft addressed directly to the author.
+                The launch of this volume marks the start of a broader mental reclamation initiative. Share your reading insights or log unique instances of algorithmic interference. Filling out the dynamic portal below directs your data safely into our secure logging workspace.
               </p>
-              <div className="mt-6 text-sm text-slate-400">
-                <p>Direct Inquiries: <span className="text-amber-400 font-mono">rodineast@gmail.com</span></p>
-              </div>
             </div>
 
-            {/* 表單核心控制塊 */}
+            {/* 無流量跳轉、全自訂 UI 數據收集終端 */}
             <div className="lg:col-span-7 bg-slate-900/50 border border-slate-900 p-6 sm:p-8 rounded-2xl relative">
-              <form onSubmit={handleFeedbackSubmit} className="space-y-4">
+              <form onSubmit={handleGoogleFormSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-slate-400 uppercase mb-2">Your Name</label>
@@ -548,14 +539,13 @@ export default function App() {
                     onChange={(e) => setFormData({...formData, type: e.target.value})}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-amber-500"
                   >
-                    <option value="Reader Insight and Feedback">Reader Insights and Reflections</option>
-                    <option value="New Digital Interruption Case">Reporting New Algorithmic Disturbance Cases</option>
-                    <option value="Speaking and Business Engagement">Keynote Speaking and Professional Inquiries</option>
+                    <option value="Reader Insights and Reflections">Reader Insights and Reflections</option>
+                    <option value="Reporting New Algorithmic Disturbance Cases">Reporting New Algorithmic Disturbance Cases</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 uppercase mb-2">Message Body</label>
+                  <label className="block text-xs font-medium text-slate-400 uppercase mb-2">Message Preview</label>
                   <textarea 
                     rows="4" required value={formData.message}
                     onChange={(e) => setFormData({...formData, message: e.target.value})}
@@ -566,17 +556,16 @@ export default function App() {
 
                 <button 
                   type="submit"
-                  className="w-full inline-flex items-center justify-center space-x-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-slate-100 to-slate-200 text-slate-950 font-bold text-sm hover:bg-white transition-all transform hover:-translate-y-0.5"
+                  className="w-full inline-flex items-center justify-center space-x-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-sm hover:shadow-lg hover:shadow-amber-500/20 transition-all transform hover:-translate-y-0.5"
                 >
-                  <Mail className="w-4 h-4" />
-                  <span>Draft Email via Native App</span>
+                  <span>Submit Secure Feedback</span>
+                  <ExternalLink className="w-4 h-4" />
                 </button>
 
-                {/* 郵件引導提示反饋區 */}
                 {feedbackSuccess && (
-                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start space-x-2 text-emerald-400 text-xs mt-2">
-                    <ShieldCheck className="w-4 h-4 shrink-0" />
-                    <span><b>Client Mail Application Invoked!</b> Tap send in your system mail window to deliver your dispatch directly to Rodin East.</span>
+                  <div className="p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex items-start space-x-2 text-cyan-400 text-xs mt-2 animate-fadeIn">
+                    <div className="w-2 h-2 rounded-full bg-cyan-400 mt-1.5 animate-ping shrink-0" />
+                    <span><b>Data Securely Transferred!</b> Your response has been securely written directly to the cloud logging server workspace. Thank you for your contribution.</span>
                   </div>
                 )}
               </form>
@@ -586,11 +575,11 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 7: 全域頁尾 */}
+      {/* SECTION 7: 頁尾 */}
       <footer className="bg-slate-950 border-t border-slate-900 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
           <div className="flex items-center space-x-2">
-            <span className="text-amber-500 font-serif font-bold"></span>
+            <span className="text-amber-500 font-serif font-bold">RE</span>
             <span>© 2026 Rodin East. All rights reserved. Published via Amazon KDP.</span>
           </div>
           <div className="flex space-x-6">
